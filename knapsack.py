@@ -87,11 +87,12 @@ toolbox.register("select", tools.selNSGA2)
 
 def main():
     random.seed(64)
-    NGEN = 50
-    MU = 50
-    LAMBDA = 100
-    CXPB = 0.7
-    MUTPB = 0.2
+    # random.seed(None)
+    NGEN = 50 # Number of generations
+    MU = 50 # Number of individuals to select for the next generation
+    LAMBDA = 100 # Number of children to produce at each generation
+    CXPB = 0.7 # Probability of mating two individuals
+    MUTPB = 0.2 # Probability of mutating an individual
 
     pop = toolbox.population(n=MU)
     hof = tools.ParetoFront()
@@ -103,7 +104,7 @@ def main():
 
     algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats,
                               halloffame=hof)
-
+    print(hof)
     return pop, stats, hof
 
 if __name__ == "__main__":
