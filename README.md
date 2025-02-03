@@ -2,6 +2,8 @@ A clear statement of the question you're asking
 *How is score affected by **1-point crossover compared to 2-point crossover***
 
 A reminder of which framework your using
+*We are using DEAP* 
+
 What set of knapsack problems you plan on comparing these two approaches on?
 *we will use both a random seed and also a completely random seed for both approaches and a control*
 

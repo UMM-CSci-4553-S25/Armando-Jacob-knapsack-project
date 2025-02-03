@@ -91,8 +91,8 @@ def main():
     NGEN = 50 # Number of generations
     MU = 50 # Number of individuals to select for the next generation
     LAMBDA = 100 # Number of children to produce at each generation
-    CXPB = 0.5 # Probability of mating two individuals
-    MUTPB = 0.5 # Probability of mutating an individual
+    CXPB = 0.8 # Probability of mating two individuals
+    MUTPB = 0.2 # Probability of mutating an individual
 
     pop = toolbox.population(n=MU)
     hof = tools.ParetoFront()
