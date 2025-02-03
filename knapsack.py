@@ -22,77 +22,77 @@ from deap import base
 from deap import creator
 from deap import tools
 
-IND_INIT_SIZE = 5
-MAX_ITEM = 50
-MAX_WEIGHT = 50
-NBR_ITEMS = 20
+IND_INIT_SIZE = 5           # Number of items in the knapsack
+MAX_ITEM = 50            # Maximum number of items in the knapsack
+MAX_WEIGHT = 50          # Maximum weight of the knapsack
+NBR_ITEMS = 20          # Number of items available
 
 # To assure reproducibility, the RNG seed is set prior to the items
 # dict initialization. It is also seeded in main().
-random.seed(64)
+random.seed(72)
 
 # Create the item dictionary: item name is an integer, and value is 
 # a (weight, value) 2-tuple.
 items = {}
 # Create random items and store them in the items' dictionary.
-for i in range(NBR_ITEMS):
-    items[i] = (random.randint(1, 10), random.uniform(0, 100))
+for i in range(NBR_ITEMS): # 20 items
+    items[i] = (random.randint(1, 10), random.uniform(0, 100)) # (weight, value)
 
-creator.create("Fitness", base.Fitness, weights=(-1.0, 1.0))
-creator.create("Individual", set, fitness=creator.Fitness)
+creator.create("Fitness", base.Fitness, weights=(-1.0, 1.0)) # Minimize weight, maximize value
+creator.create("Individual", set, fitness=creator.Fitness) # Set of items
 
-toolbox = base.Toolbox()
+toolbox = base.Toolbox()    # Create a toolbox
 
 # Attribute generator
-toolbox.register("attr_item", random.randrange, NBR_ITEMS)
+toolbox.register("attr_item", random.randrange, NBR_ITEMS)      # Randomly select an item
 
 # Structure initializers
 toolbox.register("individual", tools.initRepeat, creator.Individual, 
-    toolbox.attr_item, IND_INIT_SIZE)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+    toolbox.attr_item, IND_INIT_SIZE) # Initialize an individual with 5 items
+toolbox.register("population", tools.initRepeat, list, toolbox.individual) # Initialize a population
 
-def evalKnapsack(individual):
-    weight = 0.0
-    value = 0.0
-    for item in individual:
-        weight += items[item][0]
-        value += items[item][1]
-    if len(individual) > MAX_ITEM or weight > MAX_WEIGHT:
+def evalKnapsack(individual): # Evaluate the fitness of an individual
+    weight = 0.0 # Initialize the weight of the bag
+    value = 0.0 # Initialize the value of the bag
+    for item in individual: 
+        weight += items[item][0] # Add the weight of the item to the total weight
+        value += items[item][1] # Add the value of the item to the total value
+    if len(individual) > MAX_ITEM or weight > MAX_WEIGHT:   # Ensure overweighted bags are dominated
         return 10000, 0             # Ensure overweighted bags are dominated
-    return weight, value
+    return weight, value # Return the weight and value of the bag
 
-def cxSet(ind1, ind2):
+def cxSet(ind1, ind2): # Crossover operation
     """Apply a crossover operation on input sets. The first child is the
     intersection of the two sets, the second child is the difference of the
     two sets.
     """
     temp = set(ind1)                # Used in order to keep type
     ind1 &= ind2                    # Intersection (inplace)
-    ind2 ^= temp                    # Symmetric Difference (inplace)
+    ind2 ^= temp                   
     return ind1, ind2
 
-def mutSet(individual):
-    """Mutation that pops or add an element."""
-    if random.random() < 0.5:
+def mutSet(individual): # Mutation operation
+    """Mutation that pops or add an element.""" 
+    if random.random() < 0.5: # Remove an element
         if len(individual) > 0:     # We cannot pop from an empty set
-            individual.remove(random.choice(sorted(tuple(individual))))
-    else:
-        individual.add(random.randrange(NBR_ITEMS))
-    return individual,
+            individual.remove(random.choice(sorted(tuple(individual)))) # Remove an item randomly selected
+    else:                          # Add an element
+        individual.add(random.randrange(NBR_ITEMS)) # Add an item randomly selected
+    return individual, 
 
-toolbox.register("evaluate", evalKnapsack)
-toolbox.register("mate", cxSet)
-toolbox.register("mutate", mutSet)
-toolbox.register("select", tools.selNSGA2)
+toolbox.register("evaluate", evalKnapsack) # Evaluation function
+toolbox.register("mate", cxSet)     # Crossover operation
+toolbox.register("mutate", mutSet) # Mutation operation
+toolbox.register("select", tools.selNSGA2)  # Select the best individuals based on the NSGA-II algorithm
 
 def main():
-    random.seed(64)
-    # random.seed(None)
+    # random.seed(64)
+    random.seed(None)
     NGEN = 50 # Number of generations
     MU = 50 # Number of individuals to select for the next generation
     LAMBDA = 100 # Number of children to produce at each generation
-    CXPB = 0.7 # Probability of mating two individuals
-    MUTPB = 0.2 # Probability of mutating an individual
+    CXPB = 0.0 # Probability of mating two individuals
+    MUTPB = 1 # Probability of mutating an individual
 
     pop = toolbox.population(n=MU)
     hof = tools.ParetoFront()
@@ -104,6 +104,7 @@ def main():
 
     algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats,
                               halloffame=hof)
+    
     print(hof)
     return pop, stats, hof
 
