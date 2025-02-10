@@ -31,6 +31,32 @@ NBR_ITEMS = 20          # Number of items available
 # dict initialization. It is also seeded in main().
 random.seed(72)
 
+randint = random.randint(1, 11)
+numRuns = 20
+
+# def randBoolSequence(intForBoolean):
+#     if intForBoolean  5:
+#         return True
+#     else:
+#         return False
+
+maxSeq = 1
+seqLen = 20
+
+def randomSequence(maxSequences, sequenceLength):
+    num_sequences = random.randint(1, maxSequences)
+    sequences = []
+    for i in range(num_sequences):
+        sequence = [random.randint(0, 10) 
+                    for i in range(sequenceLength)]  # Adjust range as needed
+        sequences.append(sequence)
+    return sequence
+
+boolean_list = [item >= 5 for item in randomSequence(maxSeq, seqLen)]
+
+
+
+
 # Create the item dictionary: item name is an integer, and value is 
 # a (weight, value) 2-tuple.
 items = {}
@@ -71,6 +97,49 @@ def cxSet(ind1, ind2): # Crossover operation
     ind2 ^= temp                   
     return ind1, ind2
 
+def cxOnePoint(ind1, ind2):
+    """Executes a one point crossover on the input :term:`sequence` individuals.
+    The two individuals are modified in place. The resulting individuals will
+    respectively have the length of the other.
+
+    :param ind1: The first individual participating in the crossover.
+    :param ind2: The second individual participating in the crossover.
+    :returns: A tuple of two individuals.
+
+    This function uses the :func:`~random.randint` function from the
+    python base :mod:`random` module.
+    """
+    size = min(len(ind1), len(ind2))
+    cxpoint = random.randint(1, size - 1)
+    ind1[cxpoint:], ind2[cxpoint:] = ind2[cxpoint:], ind1[cxpoint:]
+
+    return ind1, ind2
+
+def cxTwoPoint(ind1, ind2):
+    """Executes a two-point crossover on the input :term:`sequence`
+    individuals. The two individuals are modified in place and both keep
+    their original length.
+
+    :param ind1: The first individual participating in the crossover.
+    :param ind2: The second individual participating in the crossover.
+    :returns: A tuple of two individuals.
+
+    This function uses the :func:`~random.randint` function from the Python
+    base :mod:`random` module.
+    """
+    size = min(len(ind1), len(ind2))
+    cxpoint1 = random.randint(1, size)
+    cxpoint2 = random.randint(1, size - 1)
+    if cxpoint2 >= cxpoint1:
+        cxpoint2 += 1
+    else:  # Swap the two cx points
+        cxpoint1, cxpoint2 = cxpoint2, cxpoint1
+
+    ind1[cxpoint1:cxpoint2], ind2[cxpoint1:cxpoint2] \
+        = ind2[cxpoint1:cxpoint2], ind1[cxpoint1:cxpoint2]
+
+    return ind1, ind2
+
 def mutSet(individual): # Mutation operation
     """Mutation that pops or add an element.""" 
     if random.random() < 0.5: # Remove an element
@@ -81,7 +150,8 @@ def mutSet(individual): # Mutation operation
     return individual, 
 
 toolbox.register("evaluate", evalKnapsack) # Evaluation function
-toolbox.register("mate", cxSet)     # Crossover operation
+toolbox.register("mate", cxSet) 
+# toolbox.register("mate", cxOnePoint) 
 toolbox.register("mutate", mutSet) # Mutation operation
 toolbox.register("select", tools.selNSGA2)  # Select the best individuals based on the NSGA-II algorithm
 
@@ -97,16 +167,15 @@ def main():
     pop = toolbox.population(n=MU)
     hof = tools.ParetoFront()
     stats = tools.Statistics(lambda ind: ind.fitness.values)
-    stats.register("avg", numpy.mean, axis=0)
-    stats.register("std", numpy.std, axis=0)
-    stats.register("min", numpy.min, axis=0)
+    # stats.register("avg", numpy.mean, axis=0)
+    # stats.register("std", numpy.std, axis=0)
+    # stats.register("min", numpy.min, axis=0)
     stats.register("max", numpy.max, axis=0)
 
     algorithms.eaMuPlusLambda(pop, toolbox, MU, LAMBDA, CXPB, MUTPB, NGEN, stats,
                               halloffame=hof)
     
-    print(hof)
-    return pop, stats, hof
+    return stats
 
 if __name__ == "__main__":
     main()                 
